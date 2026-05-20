@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════
+   🎵 CommitFM — Design System
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Core palette - Warm eggplant & plum-black */
+  --bg-primary: #0c0714;
+  --bg-secondary: #130b20;
+  --bg-tertiary: #190f2b;
+  --bg-card: rgba(19, 11, 32, 0.8);
+
+  /* Clean Funky accents */
+  --accent-lime: #a3e635;
+  --accent-violet: #8b5cf6;
+  --accent-lilac: #d6bbfb;
+  --accent-cyan: #06b6d4;
+
+  /* Text */
+  --text-primary: #f8f6fc;
+  --text-secondary: #c3b9d0;
+  --text-muted: #7d6e90;
+
+  /* Glass/Panels */
+  --panel-bg: rgba(19, 11, 32, 0.75);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --panel-hover-border: rgba(163, 230, 53, 0.4);
+
+  /* Flat Shadows */
+  --shadow-flat: 4px 4px 0px rgba(139, 92, 246, 0.3);
+  --shadow-flat-lime: 4px 4px 0px #a3e635;
+  --shadow-flat-lilac: 4px 4px 0px #d6bbfb;
+
+  /* Gradients */
+  --gradient-main: linear-gradient(135deg, #8b5cf6, #a3e635);
+  --gradient-warm: linear-gradient(135deg, #ec4899, #8b5cf6);
+  --gradient-cool: linear-gradient(135deg, #3b82f6, #06b6d4, #a3e635);
+  --gradient-bg: radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 60%);
+
+  /* Spacing */
+  --nav-height: 72px;
+  --player-height: 88px;
+}
+
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-serif);
+
+  /* Custom colors for Tailwind */
+  --color-accent-lime: #a3e635;
+  --color-accent-violet: #8b5cf6;
+  --color-accent-lilac: #d6bbfb;
+  --color-bg-primary: #0c0714;
+  --color-bg-secondary: #130b20;
+  --color-bg-tertiary: #190f2b;
+  --color-text-primary: #f8f6fc;
+  --color-text-secondary: #c3b9d0;
+  --color-text-muted: #7d6e90;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Base styles
+   ═══════════════════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Background ambient gradient and static grid */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-bg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-grid {
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Scrollbar
+   ═══════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Clean Flat Panels
+   ═══════════════════════════════════════════════════════════ */
+
+.glass, .glass-subtle, .glass-strong {
+  background: var(--panel-bg);
+  border: 1.5px solid var(--panel-border);
+  border-radius: 24px;
+}
+
+.glass-subtle {
+  background: rgba(19, 11, 32, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+}
+
+.glass-strong {
+  background: var(--bg-secondary);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Funky Shadows & Borders
+   ═══════════════════════════════════════════════════════════ */
+
+.shadow-flat {
+  box-shadow: var(--shadow-flat);
+}
+
+.shadow-flat-lime {
+  box-shadow: var(--shadow-flat-lime);
+}
+
+.shadow-flat-lilac {
+  box-shadow: var(--shadow-flat-lilac);
+}
+
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-lilac);
+  box-shadow: var(--shadow-flat-lilac);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Typography Helper
+   ═══════════════════════════════════════════════════════════ */
+
+.font-serif-funky {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Gradient text
+   ═══════════════════════════════════════════════════════════ */
+
+.gradient-text {
+  background: var(--gradient-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warm {
+  background: var(--gradient-warm);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Simple micro-animations
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 4s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 15s linear infinite;
+}
+
+.section-divider {
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 0;
+  border: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Responsive utilities
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 60px;
+    --player-height: 76px;
+  }
+
+  .glass, .glass-strong {
+    border-radius: 20px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
