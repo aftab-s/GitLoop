@@ -1,78 +1,103 @@
 'use client';
 
 import React from 'react';
-import { Sliders, HelpCircle } from 'lucide-react';
+import { Sliders, Sparkles } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { GlassCard } from '../ui/GlassCard';
 import * as audioEngine from '@/lib/music/engine';
 
+const SLIDER_COLORS: Record<string, string> = {
+  energy: '#a3e635',
+  ambience: '#60a5fa',
+  glitch: '#f87171',
+  complexity: '#22d3ee',
+  bass: '#818cf8',
+  tempo: '#34d399',
+};
+
 export function MusicControls() {
-  const { musicParams, setMusicParams, isPlaying } = useAppStore();
+  const { musicParams, setMusicParams, isPlaying, aiReasoning } = useAppStore();
 
   const sliders = [
-    { label: 'Energy', key: 'energy' as const, color: 'accent-purple-500', desc: 'Rhythm speed and synthesizer intensity' },
-    { label: 'Ambience', key: 'ambience' as const, color: 'accent-blue-500', desc: 'Soundscape density and reverb depth' },
-    { label: 'Glitchiness', key: 'glitch' as const, color: 'accent-red-500', desc: 'Micro-rhythms, stutters, and sound effects' },
-    { label: 'Complexity', key: 'complexity' as const, color: 'accent-cyan-500', desc: 'Harmonic layers and instrument diversity' },
-    { label: 'Bass', key: 'bass' as const, color: 'accent-indigo-500', desc: 'Sub-bass presence and low-end intensity' },
-    { label: 'Tempo Scale', key: 'tempo' as const, color: 'accent-teal-500', desc: 'Global playback rate multiplier' },
+    { label: 'Energy', key: 'energy' as const, desc: 'Rhythm speed and synth intensity' },
+    { label: 'Ambience', key: 'ambience' as const, desc: 'Reverb depth and soundscape density' },
+    { label: 'Glitchiness', key: 'glitch' as const, desc: 'Micro-stutters and noise bursts' },
+    { label: 'Complexity', key: 'complexity' as const, desc: 'Harmonic layers and instrument count' },
+    { label: 'Bass', key: 'bass' as const, desc: 'Sub-bass presence and low-end intensity' },
+    { label: 'Tempo Scale', key: 'tempo' as const, desc: 'Global playback rate multiplier' },
   ];
 
   const handleSliderChange = (key: keyof typeof musicParams, value: number) => {
     setMusicParams({ [key]: value });
-    
-    // Live update engine if playing
     if (isPlaying) {
-      // Re-trigger play with updated parameters to adjust live synthesis attributes
-      audioEngine.play({
-        ...musicParams,
-        [key]: value,
-      }).catch(console.error);
+      audioEngine.play({ ...musicParams, [key]: value }).catch(console.error);
     }
   };
 
   return (
-    <GlassCard className="p-5 border-white/5 flex flex-col gap-6">
-      <div className="flex items-center justify-between border-b border-white/5 pb-4">
-        <h3 className="text-sm font-semibold tracking-tight text-purple-200 flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-purple-400" />
-          <span>Synthesis Mixer</span>
+    <GlassCard variant="subtle" className="p-5 border-white/5 flex flex-col gap-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted flex items-center gap-1.5">
+          <Sliders className="w-3.5 h-3.5 text-accent-violet/70" />
+          Synthesis Mixer
         </h3>
-        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
-          Live Mod
+        <span className="text-[10px] font-mono text-accent-lime/60 border border-accent-lime/15 px-2 py-0.5 rounded-full">
+          live
         </span>
       </div>
 
-      <div className="flex flex-col gap-5">
+      {/* Sliders */}
+      <div className="flex flex-col gap-4">
         {sliders.map((slider) => {
-          const val = musicParams[slider.key];
+          const val = typeof musicParams[slider.key] === 'number' ? musicParams[slider.key] as number : 0;
+          const color = SLIDER_COLORS[slider.key] ?? '#a3e635';
+          const pct = val;
+
           return (
-            <div key={slider.key} className="flex flex-col gap-1.5 group">
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-text-primary group-hover:text-purple-300 transition-colors flex items-center gap-1.5">
+            <div key={slider.key} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="font-medium text-text-secondary" title={slider.desc}>
                   {slider.label}
-                  <span className="text-[10px] text-text-muted cursor-help" title={slider.desc}>
-                    <HelpCircle className="w-3 h-3" />
-                  </span>
                 </span>
-                <span className="font-mono text-text-muted">{typeof val === 'number' ? val : 0}%</span>
+                <span className="font-mono text-text-muted tabular-nums">{val}%</span>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={typeof val === 'number' ? val : 0}
-                onChange={(e) => handleSliderChange(slider.key, Number(e.target.value))}
-                className={`w-full h-1.5 rounded-full appearance-none cursor-pointer bg-white/5 hover:bg-white/10 transition-colors ${slider.color}`}
-              />
+              <div className="relative h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                {/* Filled track */}
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full transition-all duration-150"
+                  style={{ width: `${pct}%`, backgroundColor: color + '90' }}
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={val}
+                  onChange={(e) => handleSliderChange(slider.key, Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
             </div>
           );
         })}
       </div>
 
-      <div className="text-[10px] text-text-muted leading-relaxed mt-2 p-3 rounded bg-white/5 border border-white/5">
-        ⚡ <strong>Pro Tip:</strong> Adjusting these sliders updates the procedural audio synth parameters in real-time. High Glitchiness adds random noise bursts, while High Energy increases note count.
-      </div>
+      {/* AI reasoning or static tip */}
+      {aiReasoning ? (
+        <div className="border-t border-white/5 pt-4 flex flex-col gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-accent-lime/60 font-semibold flex items-center gap-1">
+            <Sparkles className="w-3 h-3" />
+            AI-Directed
+          </span>
+          <p className="text-[11px] text-text-secondary leading-relaxed italic">
+            &ldquo;{aiReasoning}&rdquo;
+          </p>
+        </div>
+      ) : (
+        <p className="text-[10px] text-text-muted leading-relaxed border-t border-white/5 pt-4">
+          Sliders update the procedural synth in real-time while playing.
+        </p>
+      )}
     </GlassCard>
   );
 }

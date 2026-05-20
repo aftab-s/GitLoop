@@ -40,7 +40,7 @@
 
   /* Spacing */
   --nav-height: 72px;
-  --player-height: 88px;
+  --player-height: 122px;
 }
 
 @theme inline {
@@ -235,7 +235,7 @@ body::before {
 @media (max-width: 768px) {
   :root {
     --nav-height: 60px;
-    --player-height: 76px;
+    --player-height: 108px;
   }
 
   .glass, .glass-strong {

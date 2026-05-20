@@ -4,7 +4,6 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
-import { fetchDeveloperStats } from '@/lib/github';
 import { getMockDeveloperStats } from '@/lib/mock-data';
 import { generateIdentity } from '@/lib/music/mappings';
 import { DeveloperCard } from '@/components/dashboard/DeveloperCard';
@@ -29,27 +28,38 @@ function DashboardContent() {
     error,
     setError,
     reset,
+    setMusicParams,
+    setAiReasoning,
   } = useAppStore();
 
   const [aiLoading, setAiLoading] = useState(false);
 
   const queryUsername = searchParams.get('username');
 
-  // Fetch AI insights from Groq
-  const fetchAiInsights = async (statsData: any, defaultIdentity: any) => {
+  // Fetch AI insights + AI music params in parallel
+  const fetchAiEnhancements = async (statsData: any, defaultIdentity: any) => {
     setAiLoading(true);
     try {
-      const res = await fetch('/api/ai/insights', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          stats: statsData,
-          archetype: defaultIdentity.archetype,
+      const [insightsRes, musicParamsRes] = await Promise.allSettled([
+        fetch('/api/ai/insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stats: statsData, archetype: defaultIdentity.archetype }),
         }),
-      });
+        fetch('/api/ai/music-params', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            stats: statsData,
+            archetype: defaultIdentity.archetype,
+            identity: defaultIdentity,
+          }),
+        }),
+      ]);
 
-      if (res.ok) {
-        const aiData = await res.json();
+      // Apply identity insights
+      if (insightsRes.status === 'fulfilled' && insightsRes.value.ok) {
+        const aiData = await insightsRes.value.json();
         setIdentity({
           ...defaultIdentity,
           lore: aiData.lore || defaultIdentity.lore,
@@ -57,8 +67,18 @@ function DashboardContent() {
           mood: aiData.mood || defaultIdentity.mood,
         });
       }
+
+      // Apply AI-directed music parameters
+      if (musicParamsRes.status === 'fulfilled' && musicParamsRes.value.ok) {
+        const musicData = await musicParamsRes.value.json();
+        if (musicData.aiDirected) {
+          const { aiDirected: _, reasoning, error: _err, ...params } = musicData;
+          setMusicParams(params);
+          if (reasoning) setAiReasoning(reasoning);
+        }
+      }
     } catch (err) {
-      console.error('Failed to load AI insights:', err);
+      console.error('Failed to load AI enhancements:', err);
     } finally {
       setAiLoading(false);
     }
@@ -70,12 +90,16 @@ function DashboardContent() {
         setIsLoading(true);
         setError(null);
         try {
-          // Attempt real fetch, fall back to mock if fails
           let data;
           try {
-            data = await fetchDeveloperStats(queryUsername);
+            const res = await fetch(`/api/github/stats?username=${encodeURIComponent(queryUsername)}`);
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({ error: res.statusText }));
+              throw new Error(err.error || `Server error ${res.status}`);
+            }
+            data = await res.json();
           } catch (err: any) {
-            console.warn('Real GitHub fetch failed, falling back to mock:', err.message);
+            console.warn('Server GitHub fetch failed, falling back to mock:', err.message);
             data = getMockDeveloperStats(queryUsername);
           }
 
@@ -83,8 +107,8 @@ function DashboardContent() {
           const initialIdentity = generateIdentity(data);
           setIdentity(initialIdentity);
 
-          // Trigger AI insights load
-          await fetchAiInsights(data, initialIdentity);
+          // Fire AI enhancements (non-blocking after initial render)
+          fetchAiEnhancements(data, initialIdentity);
         } catch (err: any) {
           setError(err.message || 'Failed to load profile.');
         } finally {
@@ -142,39 +166,40 @@ function DashboardContent() {
     <>
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full pt-[calc(var(--nav-height)+2rem)] pb-[calc(var(--player-height)+4rem)] px-4 md:px-8 flex flex-col gap-6 relative z-10">
+      <main className="flex-1 max-w-6xl mx-auto w-full pt-[calc(var(--nav-height)+2rem)] pb-[calc(var(--player-height)+4rem)] px-4 md:px-8 flex flex-col gap-5 relative z-10">
         {/* Navigation / Header Actions */}
         <div className="flex items-center justify-between">
-          <NeonButton onClick={handleBack} variant="ghost" className="p-2">
-            <ArrowLeft className="w-4 h-4" /> Back to Generator
+          <NeonButton onClick={handleBack} variant="ghost" className="px-3 py-1.5 text-xs">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
           </NeonButton>
 
-          <NeonButton onClick={handleRegenerate} variant="ghost" className="p-2 text-text-muted hover:text-accent-lime">
-            <RefreshCw className="w-4 h-4" /> Reset Synth
+          <NeonButton onClick={handleRegenerate} variant="ghost" className="px-3 py-1.5 text-xs text-text-muted hover:text-accent-lime">
+            <RefreshCw className="w-3.5 h-3.5" /> Reset
           </NeonButton>
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Left / Identity section */}
-          <div className="lg:col-span-2 flex flex-col gap-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+          {/* Left — Identity & Stats */}
+          <div className="lg:col-span-2 flex flex-col gap-4 w-full">
             <DeveloperCard />
             <GitHubStats />
           </div>
 
-          {/* Right / Audio controls section */}
-          <div className="flex flex-col gap-6 w-full lg:sticky lg:top-[calc(var(--nav-height)+2rem)]">
+          {/* Right — Audio Controls */}
+          <div className="flex flex-col gap-4 w-full lg:sticky lg:top-[calc(var(--nav-height)+2rem)]">
             <WaveformVisualizer />
-            
-            {/* Retro Cassette Badge */}
-            <div className="glass p-5 border-white/5 flex flex-col items-center justify-center bg-[#130b20] relative overflow-hidden rounded-3xl shadow-flat-lilac">
-              <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
-              <img 
-                src="/images/retro_cassette.png" 
-                alt="Retro Cassette Tape" 
-                className="w-32 h-auto object-contain animate-float-subtle" 
+
+            {/* Cassette Tape accent */}
+            <div className="flex flex-col items-center justify-center py-5 px-4 rounded-2xl border border-white/5 bg-white/[0.02] relative overflow-hidden">
+              <img
+                src="/images/retro_cassette.png"
+                alt="CommitFM Tape"
+                className="w-24 h-auto object-contain animate-float-subtle opacity-90"
               />
-              <span className="text-[10px] text-accent-lime font-mono uppercase tracking-widest mt-3 font-bold">CommitFM Tape-01</span>
+              <span className="text-[10px] text-text-muted font-mono uppercase tracking-widest mt-3">
+                CommitFM Tape-01
+              </span>
             </div>
 
             <MusicControls />

@@ -46,8 +46,8 @@ export async function POST(req: Request) {
           content: prompt,
         },
       ],
-      model: 'llama3-8b-8192',
-      temperature: 0.7,
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.75,
       response_format: { type: "json_object" },
     });
 

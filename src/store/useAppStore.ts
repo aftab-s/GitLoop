@@ -43,6 +43,10 @@ interface AppStore {
   musicParams: MusicParams;
   setMusicParams: (params: Partial<MusicParams>) => void;
 
+  // AI reasoning for music direction
+  aiReasoning: string | null;
+  setAiReasoning: (reasoning: string | null) => void;
+
   // Reset
   reset: () => void;
 }
@@ -89,6 +93,9 @@ export const useAppStore = create<AppStore>((set) => ({
       musicParams: { ...state.musicParams, ...params },
     })),
 
+  aiReasoning: null,
+  setAiReasoning: (aiReasoning) => set({ aiReasoning }),
+
   reset: () =>
     set({
       username: '',
@@ -98,5 +105,6 @@ export const useAppStore = create<AppStore>((set) => ({
       identity: null,
       isPlaying: false,
       musicParams: defaultMusicParams,
+      aiReasoning: null,
     }),
 }));

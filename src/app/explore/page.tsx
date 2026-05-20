@@ -2,16 +2,14 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Compass, Music, Flame, Star, Coffee } from 'lucide-react';
+import { Flame, Star, Coffee, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { GradientText } from '@/components/ui/GradientText';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { Navbar } from '@/components/layout/Navbar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import Starfield from '@/components/effects/Starfield';
 import AuroraGradient from '@/components/effects/AuroraGradient';
-import FloatingParticles from '@/components/effects/FloatingParticles';
 
 export default function Explore() {
   const router = useRouter();
@@ -26,7 +24,7 @@ export default function Explore() {
       metric: '842 Commits',
       metricIcon: Flame,
       metricColor: 'text-red-400',
-      description: 'An aggressive, neon-drenched industrial soundscape mapping rust files and nightly runs.',
+      description: 'An aggressive, neon-drenched industrial soundscape mapping Rust files and nightly runs.',
     },
     {
       username: 'zen_dev',
@@ -36,13 +34,13 @@ export default function Explore() {
       metric: '500 Stars',
       metricIcon: Star,
       metricColor: 'text-yellow-400',
-      description: 'A calming, organic ambient composition driven by Python APIs and CSS colors.',
+      description: 'A calming, organic ambient composition driven by Python APIs and CSS color palettes.',
     },
     {
       username: 'lofi-dreamer',
       name: 'Kenji Sato',
       archetype: 'Pixel Wizard',
-      genre: 'lofi',
+      genre: 'lo-fi',
       metric: 'Chill Vibes',
       metricIcon: Coffee,
       metricColor: 'text-orange-400',
@@ -60,15 +58,13 @@ export default function Explore() {
       <Navbar />
       <Starfield />
       <AuroraGradient />
-      <FloatingParticles count={20} />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full pt-[calc(var(--nav-height)+2rem)] pb-[calc(var(--player-height)+4rem)] px-6 md:px-12 flex flex-col gap-8 relative z-10">
-        
-        {/* Header */}
-        <div className="flex flex-col gap-2 text-center md:text-left mt-8">
-          <h1 className="text-3xl md:text-4xl font-bold font-sans tracking-tight text-white flex items-center justify-center md:justify-start gap-2.5">
-            <Compass className="w-8 h-8 text-purple-400" />
-            <span>Discover Soundtracks</span>
+      <main className="flex-1 max-w-4xl mx-auto w-full pt-[calc(var(--nav-height)+3rem)] pb-[calc(var(--player-height)+4rem)] px-6 md:px-8 flex flex-col gap-6 relative z-10">
+
+        {/* Page Header */}
+        <div className="flex flex-col gap-2 mt-4">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+            Discover Soundtracks
           </h1>
           <p className="text-sm text-text-secondary">
             Explore curated profiles and find how different coding patterns sound under procedural synthesis.
@@ -76,52 +72,49 @@ export default function Explore() {
         </div>
 
         {/* Curator Showcase Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {curatedSoundtracks.map((track) => {
             const MetricIcon = track.metricIcon;
             return (
               <GlassCard
                 key={track.username}
-                variant="default"
-                hover
-                className="p-6 border-white/5 flex flex-col justify-between h-80"
+                variant="subtle"
+                className="p-5 border-white/5 hover:border-white/10 flex flex-col justify-between gap-5 transition-all duration-200"
               >
-                <div className="flex flex-col gap-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-purple-400 font-bold uppercase tracking-wider">
+                {/* Top */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-accent-violet/80">
                         {track.genre}
                       </span>
-                      <h3 className="text-lg font-bold text-white mt-1">@{track.username}</h3>
-                      <span className="text-xs text-text-muted">{track.name}</span>
+                      <h3 className="text-sm font-bold text-white mt-0.5">@{track.username}</h3>
+                      <span className="text-[11px] text-text-muted">{track.name}</span>
                     </div>
-
-                    <div className={`flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded bg-white/5 border border-white/5 ${track.metricColor}`}>
-                      <MetricIcon className="w-3.5 h-3.5" />
+                    <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-white/[0.04] border border-white/5 ${track.metricColor} flex-shrink-0`}>
+                      <MetricIcon className="w-3 h-3" />
                       <span>{track.metric}</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-text-secondary leading-relaxed">
+                  <p className="text-[11px] text-text-secondary leading-relaxed">
                     {track.description}
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 mt-4">
-                  <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-text-muted tracking-wider">
-                    <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/25">
-                      {track.archetype}
-                    </span>
-                  </div>
-                  
+                {/* Bottom */}
+                <div className="flex flex-col gap-3">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted px-2 py-1 rounded-full bg-white/[0.03] border border-white/5 w-fit">
+                    {track.archetype}
+                  </span>
+
                   <NeonButton
                     onClick={() => handleSelect(track.username)}
                     variant="secondary"
-                    glowColor="purple"
-                    className="py-2.5 w-full text-xs font-bold"
+                    className="py-2 w-full text-xs"
                   >
-                    <Music className="w-3.5 h-3.5" />
-                    <span>Load Matrix</span>
+                    <span>Load Soundtrack</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </NeonButton>
                 </div>
               </GlassCard>

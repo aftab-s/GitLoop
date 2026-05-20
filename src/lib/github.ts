@@ -14,16 +14,24 @@ import type {
 const GITHUB_API = 'https://api.github.com';
 
 async function githubFetch<T>(path: string): Promise<T> {
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.v3+json',
+  };
+
+  // Use token if available — raises rate limit from 60 → 5000 req/hr
+  const token = process.env.GITHUB_TOKEN;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${GITHUB_API}${path}`, {
-    headers: {
-      Accept: 'application/vnd.github.v3+json',
-    },
+    headers,
     next: { revalidate: 300 }, // Cache for 5 minutes
   });
 
   if (!res.ok) {
     if (res.status === 404) throw new Error('User not found');
-    if (res.status === 403) throw new Error('Rate limited. Try again shortly.');
+    if (res.status === 403) throw new Error('Rate limited. Try again shortly or add a GitHub token.');
     throw new Error(`GitHub API error: ${res.status}`);
   }
 

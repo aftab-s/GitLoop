@@ -18,7 +18,7 @@ export function MobileNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-[var(--player-height)] md:hidden glass border-t border-white/5 flex items-center justify-around px-4 pb-safe backdrop-blur-md">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 md:hidden glass border-t border-white/5 flex items-center justify-around px-4 pb-safe backdrop-blur-md">
       {links.map((link) => {
         const Icon = link.icon;
         const isActive = pathname === link.href;

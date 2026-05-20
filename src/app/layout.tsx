@@ -35,6 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} ${lora.variable} h-full antialiased`}
       style={{ colorScheme: 'dark' }}
     >
